@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Activity Log
+{% endblock %}
+
+{% block main %}
+    <h1>{{ profile.firstname }} {{ profile.lastname }}'s Activity Log</h1>
+    <div class="activity_log">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Sport</th>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Time</th>
+                <th>Distance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if activity_data %}
+            {% for activity_data in activity_data %}
+                <tr>
+                    <td>{{ activity_data.sport }}</td>
+                    <td>{{ f_date[loop.index0] }}</td>
+                    <td>
+                        <a href="{{ url_for('activity', activity_id=activity_data['id']) }}">{{ activity_data.name }}</a>
+                    </td>
+                    <td>{{ activity_data.duration }}</td>
+                    <td>{{ activity_data.distance }}</td>
+                </tr>
+            {% endfor %}
+            {% else %}
+            <p>No activities uploaded... yet!</p>
+            {% endif %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

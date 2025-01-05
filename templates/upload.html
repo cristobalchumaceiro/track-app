@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Upload
+{% endblock %}
+
+{% block main %}
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="fitfile" class="form-label">Upload an activity</label>
+            <input type="file" class="form-control" id="fitfile" name="fitfile" accept=".fit" required>
+        </div>
+        <div class="mb-3">
+            <label for="name" class="form-label">Add a title</label>
+            <input type="text" class="form-control" id="name" name="name">
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Add a description</label>
+            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+          </div>
+        <button type="submit" class="btn btn-primary">Upload Activity</button>
+    </form>
+{% endblock %}

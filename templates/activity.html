@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Activity
+{% endblock %}
+
+{% block main %}
+
+    <div class="activity">
+        <h1>{{ activity.name }}</h1>
+        <p>{{ activity.desc }}</p>
+        <p>{{ f_date }}</p>
+
+        {% if location_data %}
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+            <div id="map-container" style="width: 500px; margin: 0 auto;">
+                <div id="map" style="height: 400px; width: 100%"></div>
+            </div>
+            <script>
+                var location_data = {{ location_data | tojson }};
+
+                function renderMap(data) {
+                    var map = L.map("map");
+                    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+                    var coords = data.map(point => [point.lat, point.lng]);
+                    L.polyline(coords, { color: 'blue' }).addTo(map);
+                    var bounds = L.latLngBounds(coords);
+                    map.fitBounds(bounds, {
+                        maxZoom: 15,
+                    });
+                }
+
+                renderMap(location_data);
+            </script>
+        {% else %}
+            <p>No map data available.</p>
+        {% endif %}
+
+        {% if activity %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Distance</th>
+                        <th>Pace</th>
+                        <th>Calories</th>
+                        <th>Avg Heart Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ activity.duration }}</td>
+                        <td>{{ activity.distance }}</td>
+                        <td>{{ activity.pace }} /km</td>
+                        <td>{{ activity.calories }} kcal</td>
+                        <td>{{ activity.heartrate }} bpm</td>
+                    </tr>
+                </tbody>
+            </table>
+        {% else %}
+            <p>No activity data available.</p>
+        {% endif %}
+
+        {% if activity %}
+            <form action="{{ url_for('edit_activity', activity_id=activity['id']) }}" method="GET">
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Edit Activity</button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+    {% endblock %}
