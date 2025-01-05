@@ -14,14 +14,14 @@ CREATE TABLE activities (
     userId INTEGER NOT NULL,
     fileData BLOB NOT NULL,
     sport TEXT,
-    name TEXT NOT NULL DEFAULT Activity,
+    name TEXT,
     desc TEXT,
-    date TEXT NOT NULL,
-    duration TEXT NOT NULL,
-    distance TEXT NOT NULL,
-    pace TEXT NOT NULL,
-    calories INTEGER NOT NULL,
-    heartrate INTEGER NOT NULL,
+    date TEXT,
+    duration TEXT,
+    distance TEXT,
+    pace TEXT,
+    calories INTEGER,
+    heartrate INTEGER,
 
     FOREIGN KEY (userId) REFERENCES users (id) ON DELETE CASCADE ON UPDATE CASCADE
 );

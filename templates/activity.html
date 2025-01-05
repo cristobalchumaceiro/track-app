@@ -41,20 +41,40 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Distance</th>
-                        <th>Pace</th>
-                        <th>Calories</th>
-                        <th>Avg Heart Rate</th>
+                        {% if activity.duration %}
+                            <th>Time</th>
+                        {% endif %}
+                        {% if activity.distance != None %}
+                            <th>Distance</th>
+                        {% endif %}
+                        {% if activity.pace != None %}
+                            <th>Pace</th>
+                        {% endif %}
+                        {% if activity.calories %}
+                            <th>Calories</th>
+                        {% endif %}
+                        {% if activity.heartrate %}
+                            <th>Avg Heart Rate</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ activity.duration }}</td>
-                        <td>{{ activity.distance }}</td>
-                        <td>{{ activity.pace }} /km</td>
-                        <td>{{ activity.calories }} kcal</td>
-                        <td>{{ activity.heartrate }} bpm</td>
+                        {% if activity.duration %}
+                            <td>{{ activity.duration }}</td>
+                        {% endif %}
+                        {% if activity.distance != None %}
+                            <td>{{ activity.distance }}</td>
+                        {% endif %}
+                        {% if activity.pace != None %}
+                            <td>{{ activity.pace }} /km</td>
+                        {% endif %}
+                        {% if activity.calories %}
+                            <td>{{ activity.calories }} kcal</td>
+                        {% endif %}
+                        {% if activity.heartrate %}
+                            <td>{{ activity.heartrate }} bpm</td>
+                        {% endif %}
                     </tr>
                 </tbody>
             </table>

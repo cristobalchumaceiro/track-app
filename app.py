@@ -135,9 +135,6 @@ def upload():
         name = request.form.get("name")
         desc = request.form.get("description")
 
-        if not name:
-            name = "Activity"
-
         # Retrieve uploaded .fit file from input field
         file = request.files.get("fitfile")
         if file:
@@ -160,30 +157,44 @@ def upload():
                 fit_session = next(fitfile.get_messages("session"))
                 date = fit_session.get_value("start_time")
                 duration = time_elapsed(fit_session.get_value("total_elapsed_time"))
-                distance = distance_conv(fit_session.get_value("total_distance"))
-                pace = pace_calc(fit_session.get_value("total_elapsed_time"),
-                                 fit_session.get_value("total_distance"))
+                if fit_session.get_value("total_distance") is not None:
+                    distance = distance_conv(fit_session.get_value("total_distance"))
+                    pace = pace_calc(fit_session.get_value("total_elapsed_time"), fit_session.get_value("total_distance"))
+                else:
+                    distance = None
+                    pace = None
                 calories = fit_session.get_value("total_calories")
                 heartrate = fit_session.get_value("avg_heart_rate")
 
                 fit_sport = next(fitfile.get_messages("sport"))
                 sport = fit_sport.get_value("name")
 
+                if not name:
+                    name = sport
+
                 # Insert file into database and get activity_id
                 db = get_db()
                 cursor = db.cursor()
-                cursor.execute(
-                    "INSERT INTO activities (userId, fileData, sport, name, desc, date, duration, distance, pace, calories, heartrate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                    (user_id, file_data, sport, name, desc, date,
-                     duration, distance, pace, calories, heartrate)
-                )
-                activity_id = cursor.lastrowid
-                db.commit()
+                if not distance and pace:
+                    cursor.execute(
+                        "INSERT INTO activities (userId, fileData, sport, name, desc, date, duration, calories, heartrate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (user_id, file_data, sport, name, desc, date, duration, calories, heartrate)
+                    )
+                    activity_id = cursor.lastrowid
+                    db.commit()
+                else:
+                    cursor.execute(
+                        "INSERT INTO activities (userId, fileData, sport, name, desc, date, duration, distance, pace, calories, heartrate) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (user_id, file_data, sport, name, desc, date, duration, distance, pace, calories, heartrate)
+                    )
+                    activity_id = cursor.lastrowid
+                    db.commit()
 
                 # Pass activity_id to activity page to display data
                 flash("Activity uploaded sccuessfully")
                 return redirect(f"/activity/{activity_id}")
             except Exception as e:
+                print(e)
                 flash("An error occurred while uploading the activity. Please try again.")
                 return redirect("/upload")
         else:
@@ -209,6 +220,10 @@ def activity(activity_id):
         "SELECT * FROM activities WHERE id = ?",
         (activity_id,)
     ).fetchone()
+
+    if not activity:
+        flash("Activity not found.")
+        return redirect("/activity_log")
 
     # Format stored date
     date_object = datetime.strptime(activity['date'], "%Y-%m-%d %H:%M:%S")
@@ -333,3 +348,11 @@ def profile():
         f_date.append(date_object.strftime("%a, %d/%m/%Y"))
 
     return render_template("activity_log.html", profile=profile, activity_data=activity_data, f_date=f_date)
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("error.html", error="404 Page Not Found"), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template("error.html", error="500 Internal Server Error"), 500
